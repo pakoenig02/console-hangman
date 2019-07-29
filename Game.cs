@@ -44,7 +44,7 @@ namespace Hangman
             GuessLoop();
         }
 
-        private void Welcome()
+        private static void Welcome()
         {
             Console.WriteLine("WELCOME TO HANGMAN!");
             HangmanDrawer.Draw();
@@ -55,6 +55,74 @@ namespace Hangman
             this._wordToGuess = GetWordToGuessFromPlayer();
             this._wordToGuessWithUnderscores = ConvertWordToUnderscores(this._wordToGuess);
             this._guessErrorsMaximum = GetGuessesMaximumFromPlayer();
+        }
+
+        private static string GetWordToGuessFromPlayer()
+        {
+            bool wordToGuessIsValid = false;
+            string wordToGuess = "";
+
+            Console.Write("Write word to guess: ");
+
+            while (!wordToGuessIsValid)
+            {
+                wordToGuess = Console.ReadLine();
+
+                if (wordToGuess.All(Char.IsLetter))
+                {
+                    wordToGuessIsValid = true;
+                }
+                else
+                {
+                    Console.Write("Word is not allowed to have numbers and special chars, try again: ");
+                    wordToGuessIsValid = false;
+                }
+            }
+
+            return wordToGuess.ToUpper();
+        }
+
+        private static string ConvertWordToUnderscores(string word)
+        {
+            StringBuilder wordAsUnderscores = new StringBuilder();
+
+            for (int index = 0; index < word.Length; index++)
+            {
+                wordAsUnderscores.Append("_");
+            }
+
+            return wordAsUnderscores.ToString();
+        }
+
+        private static int GetGuessesMaximumFromPlayer()
+        {
+            bool playerInputIsValid = false;
+            int guessesMaximum = 0;
+
+            Console.Write("Type amount of guesses (Standard 10): ");
+
+            while (!playerInputIsValid)
+            {
+                if (!(int.TryParse(Console.ReadLine(), out guessesMaximum)))
+                {
+                    Console.WriteLine("Input needs to be a number, try again: ");
+                    continue;
+                }
+                else if (guessesMaximum <= 0)
+                {
+                    Console.WriteLine("Input number needs to be possitiv, try again: ");
+                    continue;
+                }
+                else if (guessesMaximum < 10)
+                {
+                    Console.WriteLine("Input number must be 10 or bigger, try again: ");
+                    continue;
+                }
+
+                playerInputIsValid = true;
+            }
+
+            return guessesMaximum;
         }
 
         private void GuessLoop()
@@ -88,7 +156,35 @@ namespace Hangman
                 case 2:
                     LetterGuess();
                     break;
+                default:
+                    Console.WriteLine("Invalid input");
+                    break;
             }
+        }
+
+        private static int GetPlayerGuessChoice()
+        {
+            bool playerInputIsValid = false;
+            int guessOrLetter = 0;
+            string tryAgain = " Try again.\n";
+
+            while (!playerInputIsValid)
+            {
+                if (!(int.TryParse(Console.ReadLine(), out guessOrLetter)))
+                {
+                    Console.Write("Input needs to be a digit!" + tryAgain);
+                    continue;
+                }
+                else if (!(guessOrLetter == 1 || guessOrLetter == 2))
+                {
+                    Console.Write("Input must be 1 or 2!" + tryAgain);
+                    continue;
+                }
+
+                playerInputIsValid = true;
+            }
+
+            return guessOrLetter;
         }
 
         private void WordGuess()
@@ -168,6 +264,26 @@ namespace Hangman
             return playerLetterGuess;
         }
 
+        private bool CheckIfLetterWasAlreadyGuessed(char playerLetterGuess)
+        {
+            bool letterAlreadyGuessed = false;
+
+            foreach (char alreadyGuessedletter in this._alreadyGuessedLetters)
+            {
+                if (playerLetterGuess == alreadyGuessedletter)
+                {
+                    letterAlreadyGuessed = true;
+                }
+            }
+
+            if (letterAlreadyGuessed == false)
+            {
+                this._alreadyGuessedLetters.Add(playerLetterGuess);
+            }
+
+            return letterAlreadyGuessed;
+        }
+
         private bool CheckIfWordContainsLetterGuess(char playerLetterGuess)
         {
             bool letterInString = false;
@@ -195,31 +311,6 @@ namespace Hangman
                     this._wordToGuessWithUnderscores = sb.ToString();
                 }
             }
-        }
-
-        private int GetPlayerGuessChoice()
-        {
-            bool playerInputIsValid = false;
-            int guessOrLetter = 0;
-            string tryAgain = " Try again.\n";
-
-            while (!playerInputIsValid)
-            {
-                if (!(int.TryParse(Console.ReadLine(), out guessOrLetter)))
-                {
-                    Console.Write("Input needs to be a digit!" + tryAgain);
-                    continue;
-                }
-                else if (!(guessOrLetter == 1 || guessOrLetter == 2))
-                {
-                    Console.Write("Input must be 1 or 2!" + tryAgain);
-                    continue;
-                }
-
-                playerInputIsValid = true;
-            }
-
-            return guessOrLetter;
         }
 
         private void CheckGameOverConditions()
@@ -250,95 +341,7 @@ namespace Hangman
             Console.WriteLine("Word was: " + this._wordToGuess);
         }
 
-        private bool CheckIfLetterWasAlreadyGuessed(char playerLetterGuess)
-        {
-            bool letterAlreadyGuessed = false;
-
-            foreach (char alreadyGuessedletter in this._alreadyGuessedLetters)
-            {
-                if (playerLetterGuess == alreadyGuessedletter)
-                {
-                    letterAlreadyGuessed = true;
-                }
-            }
-
-            if (letterAlreadyGuessed == false)
-            {
-                this._alreadyGuessedLetters.Add(playerLetterGuess);
-            }
-
-            return letterAlreadyGuessed;
-        }
-
-        private static int GetGuessesMaximumFromPlayer()
-        {
-            bool playerInputIsValid = false;
-            int guessesMaximum = 0;
-
-            Console.Write("Type amount of guesses (Standard 10): ");
-
-            while (!playerInputIsValid)
-            {
-                if (!(int.TryParse(Console.ReadLine(), out guessesMaximum)))
-                {
-                    Console.WriteLine("Input needs to be a number, try again: ");
-                    continue;
-                }
-                else if (guessesMaximum <= 0)
-                {
-                    Console.WriteLine("Input number needs to be possitiv, try again: ");
-                    continue;
-                }
-                else if (guessesMaximum < 10)
-                {
-                    Console.WriteLine("Input number must be 10 or bigger, try again: ");
-                    continue;
-                }
-
-                playerInputIsValid = true;
-            }
-
-            return guessesMaximum;
-        }
-
-        private static string GetWordToGuessFromPlayer()
-        {
-            bool wordToGuessIsValid = false;
-            string wordToGuess = "";
-
-            Console.Write("Write word to guess: ");
-
-            while (!wordToGuessIsValid) 
-            {
-                wordToGuess = Console.ReadLine();
-
-                if (wordToGuess.All(Char.IsLetter))
-                {
-                    wordToGuessIsValid = true;
-                }
-                else
-                {
-                    Console.Write("Word is not allowed to have numbers and special chars, try again: ");
-                    wordToGuessIsValid = false;
-                }
-            }
-
-            return wordToGuess.ToUpper();
-        }
-
-        private string ConvertWordToUnderscores(string word)
-        {
-            StringBuilder wordAsUnderscores = new StringBuilder();
-
-            for (int index = 0; index < word.Length; index++)
-            {
-                wordAsUnderscores.Append("_");
-            }
-
-            return wordAsUnderscores.ToString();
-        }
-
-        private void PrintWordWithSpaces(string word, int amountSpaces = 1)
+        private static void PrintWordWithSpaces(string word, int amountSpaces = 1)
         {
             string letterSpace = new String(' ', amountSpaces);
             StringBuilder WordWithSpaces = new StringBuilder();
