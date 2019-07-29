@@ -73,7 +73,7 @@ namespace Hangman
         private void PrintGuessOrLetterHeadinfo()
         {
             this._hangmanDrawer.DrawInDependenceOfMaxAndCurrentCount(this._guessErrorsMaximum, this._playerGuessErrorCounter);
-            PrintWordWithSpaces(this._wordToGuessWithUnderscores, 1);
+            PrintWordWithSpaces(this._wordToGuessWithUnderscores);
             Console.Write($"\n[{this._playerGuessErrorCounter + 1} / {this._guessErrorsMaximum}] Choose guess or letter (1 or 2):\n");
             Console.WriteLine("----------------------------------------");
         }
@@ -87,8 +87,6 @@ namespace Hangman
                     break;
                 case 2:
                     LetterGuess();
-                    break;
-                default:
                     break;
             }
         }
@@ -111,12 +109,16 @@ namespace Hangman
 
         private void LetterGuess()
         {
+            char playerLetterGuess;
+
             Console.Write("\nInput your letter: ");
             PrintAlreadyGuessedLetters();
+            playerLetterGuess = GetPlayerLetterGuess();
 
-            if (CheckIfWordContainsLetterGuess(GetPlayerLetterGuess()))
+            if (CheckIfWordContainsLetterGuess(playerLetterGuess))
             {
                 Console.WriteLine("Word contains your letter!\n");
+                UpdateWordToGuessWithUnderscoresWithNewLetter(playerLetterGuess);
             }
             else
             {
@@ -134,24 +136,6 @@ namespace Hangman
                     + ")"
                 );
             }
-        }
-
-        private bool CheckIfWordContainsLetterGuess(char playerLetterGuess)
-        {
-            bool letterInString = false;
-
-            for (int index = 0; index < this._wordToGuess.Length; index++)
-            {
-                if (this._wordToGuess[index] == playerLetterGuess)
-                {
-                    StringBuilder sb = new StringBuilder(this._wordToGuessWithUnderscores);
-                    sb[index] = playerLetterGuess;
-                    this._wordToGuessWithUnderscores = sb.ToString();
-                    letterInString = true;
-                }
-            }
-
-            return letterInString;
         }
 
         private char GetPlayerLetterGuess()
@@ -182,6 +166,35 @@ namespace Hangman
             }
 
             return playerLetterGuess;
+        }
+
+        private bool CheckIfWordContainsLetterGuess(char playerLetterGuess)
+        {
+            bool letterInString = false;
+
+            for (int index = 0; index < this._wordToGuess.Length; index++)
+            {
+                if (this._wordToGuess[index] == playerLetterGuess)
+                {
+                    letterInString = true;
+                    break;
+                }
+            }
+
+            return letterInString;
+        }
+
+        private void UpdateWordToGuessWithUnderscoresWithNewLetter(char playerLetterGuess)
+        {
+            for (int index = 0; index < this._wordToGuess.Length; index++)
+            {
+                if (this._wordToGuess[index] == playerLetterGuess)
+                {
+                    StringBuilder sb = new StringBuilder(this._wordToGuessWithUnderscores);
+                    sb[index] = playerLetterGuess;
+                    this._wordToGuessWithUnderscores = sb.ToString();
+                }
+            }
         }
 
         private int GetPlayerGuessChoice()
@@ -257,12 +270,7 @@ namespace Hangman
             return letterAlreadyGuessed;
         }
 
-        private void End()
-        {
-
-        }
-
-        private int GetGuessesMaximumFromPlayer()
+        private static int GetGuessesMaximumFromPlayer()
         {
             bool playerInputIsValid = false;
             int guessesMaximum = 0;
@@ -276,12 +284,12 @@ namespace Hangman
                     Console.WriteLine("Input needs to be a number, try again: ");
                     continue;
                 }
-                else if (!(guessesMaximum > 0))
+                else if (guessesMaximum <= 0)
                 {
                     Console.WriteLine("Input number needs to be possitiv, try again: ");
                     continue;
                 }
-                else if (!(guessesMaximum >= 10))
+                else if (guessesMaximum < 10)
                 {
                     Console.WriteLine("Input number must be 10 or bigger, try again: ");
                     continue;
@@ -293,7 +301,7 @@ namespace Hangman
             return guessesMaximum;
         }
 
-        private string GetWordToGuessFromPlayer()
+        private static string GetWordToGuessFromPlayer()
         {
             bool wordToGuessIsValid = false;
             string wordToGuess = "";
@@ -320,24 +328,28 @@ namespace Hangman
 
         private string ConvertWordToUnderscores(string word)
         {
-            string underscores = "";
+            StringBuilder wordAsUnderscores = new StringBuilder();
 
-            for (int counter = 0; counter < word.Length; counter++) { underscores += "_"; }
+            for (int index = 0; index < word.Length; index++)
+            {
+                wordAsUnderscores.Append("_");
+            }
 
-            return underscores;
+            return wordAsUnderscores.ToString();
         }
 
         private void PrintWordWithSpaces(string word, int amountSpaces = 1)
         {
-            string wordWithSpaces = "";
             string letterSpace = new String(' ', amountSpaces);
+            StringBuilder WordWithSpaces = new StringBuilder();
 
             for (int index = 0; index < word.Length; index++)
             {
-                wordWithSpaces += word[index] + letterSpace;
+                string letter = word[index].ToString();
+                WordWithSpaces.Append(letter).Append(letterSpace);
             }
 
-            Console.WriteLine(wordWithSpaces.Trim());
+            Console.WriteLine(WordWithSpaces.ToString().Trim());
         }
     }
 }

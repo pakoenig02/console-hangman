@@ -8,7 +8,7 @@ namespace Hangman
 {
     sealed class HangmanDrawer
     {
-        private int _currentStage = 0;
+        private int _currentStage;
         private readonly static string[] _stages = {
             "               \n" +
             "               \n" +
